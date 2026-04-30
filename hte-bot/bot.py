@@ -17,21 +17,21 @@ STATUS_ICON = {'arriving':'🟢','transit':'🚢','sailing':'⚓','pending':'⏳
 STATUS_PILL = {'arriving':'Прибывает','transit':'В пути','sailing':'Отплывает','pending':'Нет даты'}
 
 MODELS = {
-    'G9190H':  ('Автогрейдер',        'SDLG G9190H',  '🟡'),
-    'G9165F':  ('Автогрейдер',        'SDLG G9165F',  '🟡'),
-    'G9220H':  ('Автогрейдер',        'SDLG G9220H',  '🟡'),
-    'E6255F':  ('Экскаватор',         'SDLG E6255F',  '⛏️'),
-    'E6350H':  ('Экскаватор',         'SDLG E6350H',  '⛏️'),
-    'E690F':   ('Экскаватор',         'SDLG E690F',   '⛏️'),
-    'E7210H':  ('Экскаватор',         'SDLG E7210H',  '⛏️'),
-    'L958F':   ('Фронтальный погрузчик','SDLG L958F', '🚜'),
-    'L956FH':  ('Фронтальный погрузчик','SDLG L956FH','🚜'),
-    'L956H':   ('Фронтальный погрузчик','SDLG L956H', '🚜'),
-    'L933F':   ('Фронтальный погрузчик','SDLG L933F', '🚜'),
-    'B877F':   ('Каток дорожный',     'SDLG B877F',   '🔵'),
-    'SR900H':  ('Каток вибрационный', 'SDLG SR900H',  '🔵'),
-    'SD26':    ('Бульдозер',          'SDLG SD26',    '🔨'),
-    'D18H':    ('Бульдозер',          'SDLG D18H',    '🔨'),
+    'G9190H':  ('Автогрейдер', 'SDLG G9190H'),
+    'G9165F':  ('Автогрейдер', 'SDLG G9165F'),
+    'G9220H':  ('Автогрейдер', 'SDLG G9220H'),
+    'E6255F':  ('Экскаватор', 'SDLG E6255F'),
+    'E6350H':  ('Экскаватор', 'SDLG E6350H'),
+    'E690F':   ('Экскаватор', 'SDLG E690F'),
+    'E7210H':  ('Экскаватор', 'SDLG E7210H'),
+    'L958F':   ('Фронтальный погрузчик', 'SDLG L958F'),
+    'L956FH':  ('Фронтальный погрузчик', 'SDLG L956FH'),
+    'L956H':   ('Фронтальный погрузчик', 'SDLG L956H'),
+    'L933F':   ('Фронтальный погрузчик', 'SDLG L933F'),
+    'B877F':   ('Каток дорожный', 'SDLG B877F'),
+    'SR900H':  ('Каток вибрационный', 'SDLG SR900H'),
+    'SD26':    ('Бульдозер', 'SDLG SD26'),
+    'D18H':    ('Бульдозер', 'SDLG D18H'),
 }
 
 SKIP_TOKENS = {'SKD','TDC','UST','ETD','ETA','BUS','SDLG','SRL','DOCS',
@@ -53,10 +53,10 @@ def parse_equipment(raw):
         found.add(model)
         info = MODELS.get(model)
         if info:
-            tp, mdl, icon = info
-            results.append({'icon':icon,'type':tp,'model':mdl,'qty':int(qty)})
+            tp, mdl = info
+            results.append({'type':tp,'model':mdl,'qty':int(qty)})
         else:
-            results.append({'icon':'📦','type':'Техника','model':f'SDLG {model}','qty':int(qty)})
+            results.append({'type':'Техника','model':f'SDLG {model}','qty':int(qty)})
 
     # Standalone models (qty=1)
     for m in re.finditer(r'\b([A-Z]\d+[A-Z0-9]+)\b', text):
@@ -65,48 +65,48 @@ def parse_equipment(raw):
         info = MODELS.get(model)
         if not info: continue
         found.add(model)
-        tp, mdl, icon = info
-        results.append({'icon':icon,'type':tp,'model':mdl,'qty':1})
+        tp, mdl = info
+        results.append({'type':tp,'model':mdl,'qty':1})
 
     # Buckets
     bm = re.search(r'(\d*)\s*[Xx]?\s*BUCKET', text)
     if bm or 'КОВШ' in text:
         qty = int(bm.group(1)) if bm and bm.group(1) else 1
-        results.append({'icon':'🪣','type':'Ковш','model':'Навесное оборудование','qty':qty})
+        results.append({'type':'Ковш','model':'Навесное оборудование','qty':qty})
 
     # Forks
     fm = re.search(r'(\d*)\s*[Xx]?\s*FORK', text)
     if fm or 'ВИЛЫ' in text or 'ВИЛА' in text:
         qty = int(fm.group(1)) if fm and fm.group(1) else 1
-        results.append({'icon':'🍴','type':'Вилы','model':'Навесное оборудование','qty':qty})
+        results.append({'type':'Вилы','model':'Навесное оборудование','qty':qty})
 
     # Yutong bus
     if 'YUTONG' in text and 'SPARE' not in text and 'PARTS' not in text:
-        results.append({'icon':'🚌','type':'Автобус','model':'Yutong','qty':1})
+        results.append({'type':'Автобус','model':'Yutong','qty':1})
 
     # Spare parts
     if 'SPARE' in text or 'ЗАП' in text:
         brand = 'SDLG' if 'SDLG' in text else ('Yutong' if 'YUTONG' in text else '')
-        results.append({'icon':'🔧','type':'Запасные части','model':brand,'qty':0})
+        results.append({'type':'Запасные части','model':brand,'qty':0})
 
     # Robots AllyNav
     if 'ALLYNAV' in text or 'ALLYN' in text:
-        results.append({'icon':'🤖','type':'Роботы','model':'AllyNav','qty':0})
+        results.append({'type':'Роботы','model':'AllyNav','qty':0})
 
     # Lonking forklift
     if 'LONKING' in text:
-        results.append({'icon':'🏗️','type':'Погрузчик','model':'Lonking','qty':0})
+        results.append({'type':'Погрузчик','model':'Lonking','qty':0})
 
     # Shandong Disam
     if 'DISAM' in text or 'SHANDONG' in text:
-        results.append({'icon':'📦','type':'Техника','model':'Shandong Disam','qty':0})
+        results.append({'type':'Техника','model':'Shandong Disam','qty':0})
 
     # Buldozer SD26 (text match)
     if 'BULDOZER' in text or 'БУЛЬДОЗЕР' in text:
         if not any(r['type']=='Бульдозер' for r in results):
             mdl_m = re.search(r'SD\d+', text)
             mdl = mdl_m.group(0) if mdl_m else 'SDLG'
-            results.append({'icon':'🔨','type':'Бульдозер','model':f'SDLG {mdl}','qty':1})
+            results.append({'type':'Бульдозер','model':f'SDLG {mdl}','qty':1})
 
     return results if results else [{'icon':'📦','type':'Груз','model':raw[:60],'qty':0}]
 
