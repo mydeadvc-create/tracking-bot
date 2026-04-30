@@ -118,7 +118,6 @@ def build_card_items_html(equipment):
         qty_str = f'<span class="eq-qty">{eq["qty"]} ед.</span>' if eq['qty'] > 0 else ''
         model_str = f'<span class="eq-model">{eq["model"]}</span>' if eq['model'] else ''
         html += f'''<div class="eq-item">
-  <span class="eq-icon">{eq["icon"]}</span>
   <span class="eq-type">{eq["type"]}</span>
   {model_str}
   {qty_str}
@@ -338,7 +337,7 @@ header{padding:0 48px;display:flex;align-items:center;justify-content:space-betw
 .card-dest{font-size:11px;color:#888;margin-top:3px}
 .eq-list{display:flex;flex-direction:column;gap:6px;border-top:1px solid #f0ede6;padding-top:12px}
 .eq-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#faf9f6;border-radius:8px}
-.eq-icon{font-size:18px;flex-shrink:0}
+.eq-icon{display:none}
 .eq-type{font-size:13px;font-weight:600;color:#0d0d0d}
 .eq-model{font-size:12px;color:#888;margin-left:2px}
 .eq-qty{margin-left:auto;font-size:12px;font-weight:700;padding:2px 10px;border-radius:12px;background:#eee;color:#444}
@@ -434,7 +433,7 @@ def generate_html(shipments, update_date):
         for eq in s['equipment']:
             qty_str = f'<span class="eq-qty">{eq["qty"]} ед.</span>' if eq.get('qty',0)>0 else ''
             model_str = f'<span class="eq-model">{eq["model"]}</span>' if eq.get('model') else ''
-            eq_html += f'<div class="eq-item"><span class="eq-icon">{eq["icon"]}</span><span class="eq-type">{eq["type"]}</span>{model_str}{qty_str}</div>'
+            eq_html += f'<div class="eq-item"><div class="eq-label"><span class="eq-type">{eq["type"]}</span><span class="eq-model">{eq.get("model","")}</span></div>{qty_str}</div>'
 
         note_html = f'<div class="card-note">⚠️ {s["note"]}</div>' if s['note'] else ''
 
@@ -560,7 +559,7 @@ def make_card(s, delay):
         qty   = f'<span class="eq-qty">{eq["qty"]} ед.</span>' if eq.get("qty",0) > 0 else ""
         eq_html += (
             '<div class="eq-item">' +
-            '<div class="eq-icon">' + CONTAINER_SVG + '</div>' +
+            
             '<div class="eq-label">' +
             f'<span class="eq-type">{eq.get("type","")}</span>' +
             f'<span class="eq-model">{eq.get("model","")}</span>' +
